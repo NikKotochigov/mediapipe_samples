@@ -3,8 +3,8 @@ import vision from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision";
 
 // we then import the camera class and the utils functions
 import Camera from "./camera.js";
-import {fetchImageAsElement} from "./utils.js";
-import {createPortrait} from "./portrait.js";
+import { fetchImageAsElement } from "./utils.js";
+import { createPortrait } from "./portrait.js";
 import { createCopyTextureToCanvas } from "./convertMPMaskToImageBitmap.js"
 const { ImageSegmenter, SegmentationMask, FilesetResolver } = vision;
 
@@ -50,10 +50,10 @@ const backgroundImageList = [
     "https://storage.googleapis.com/mediapipe-assets/stars-image-seg.jpg"
 ];
 
-
+export const MODEL_ASSET_PATH = "../models/selfie_segmenter_landscape.tflite";
 
 // this code will be executed when the DOM is loaded
-document.addEventListener('DOMContentLoaded', async () =>{
+document.addEventListener('DOMContentLoaded', async () => {
     // populate the video source and background image select with the available devices and images respectively
     await populateVideoSourceSelect();
     await populateBackgroundImageSelect();
@@ -75,10 +75,9 @@ async function createImageSegmenter() {
         "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
     );
     // Initializes the Wasm runtime and creates a new image segmenter from the provided options.
-    return await  ImageSegmenter.createFromOptions(wasmFileset, {
+    return await ImageSegmenter.createFromOptions(wasmFileset, {
         baseOptions: {
-            modelAssetPath:
-                "https://storage.googleapis.com/mediapipe-tasks/image_segmenter/selfie_segmentation.tflite",
+            modelAssetPath: MODEL_ASSET_PATH,
             delegate: "GPU"
 
         },
@@ -87,7 +86,7 @@ async function createImageSegmenter() {
     })
 }
 
-async function startSegmentationTask(){
+async function startSegmentationTask() {
     // In Safari, the timing of drawingImage for a VideoElement is severe and often results in an empty image.
     // Therefore, we use createImageBitmap to get the image from the video element at first.
     const input = await createImageBitmap(video);
@@ -98,7 +97,7 @@ async function startSegmentationTask(){
     const segmentationMask = await imageSegmenter.segmentForVideo(input, frameId);
 
 
-    if(camera.isRunning) {
+    if (camera.isRunning) {
         // draw the segmentation mask on the canvas
         await drawSegmentationResult(segmentationMask.confidenceMasks, input);
 
@@ -109,11 +108,11 @@ async function startSegmentationTask(){
     }
 }
 
-function stopSegmentationTask(){
+function stopSegmentationTask() {
     /**
      * Stops the segmentation task
      */
-    if(requestAnimationFrameId) {
+    if (requestAnimationFrameId) {
         window.cancelAnimationFrame(requestAnimationFrameId);
     }
 }
@@ -134,13 +133,13 @@ async function populateVideoSourceSelect() {
     });
 }
 
-async function populateBackgroundImageSelect(){
+async function populateBackgroundImageSelect() {
     /**
      * Populates the background image select with the available images
      * @type {HTMLElement}
      */
     backgroundImageList.forEach((imageUrl) => {
-        const filename = imageUrl.substring(imageUrl.lastIndexOf('/')+1);
+        const filename = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
         const option = document.createElement('option');
         option.value = imageUrl;
         option.text = filename;
@@ -150,7 +149,7 @@ async function populateBackgroundImageSelect(){
 }
 
 
-async function startCamera(){
+async function startCamera() {
     /**
      * Starts the camera
      */
@@ -166,11 +165,11 @@ async function startCamera(){
     await camera.start(deviceId);
 }
 
-async function stopCamera(){
+async function stopCamera() {
     /**
      * Stops the camera
      */
-    if(camera.isRunning) {
+    if (camera.isRunning) {
         // stop the segmentation task if it is running
         stopSegmentationTask();
         // stop the camera
@@ -178,7 +177,7 @@ async function stopCamera(){
     }
 }
 
-function clearCanvas(){
+function clearCanvas() {
     /**
      * Clears the canvas
      */
@@ -195,7 +194,7 @@ btnStart.addEventListener('click', async () => {
         startSegmentationTask();
     }
     catch (e) {
-        M.toast({html: e.toString(), displayLength: 5000})
+        M.toast({ html: e.toString(), displayLength: 5000 })
     }
 });
 
@@ -206,7 +205,7 @@ selBackgroundImg.addEventListener('change', async () => {
         backgroundImage = null;
         // set the background image to the image selected by the user
         const image_uri = selBackgroundImg.value;
-        if(image_uri === '') {
+        if (image_uri === '') {
             backgroundImage = null;
             return;
         }
@@ -214,7 +213,7 @@ selBackgroundImg.addEventListener('change', async () => {
     }
     catch (e) {
         backgroundImage = null;
-        M.toast({html: e.toString(), displayLength: 5000})
+        M.toast({ html: e.toString(), displayLength: 5000 })
     }
 });
 
@@ -260,7 +259,7 @@ fileBackgroundImg.addEventListener('change', async (evt) => {
     }
     catch (e) {
         backgroundImage = null;
-        M.toast({html: e.toString(), displayLength: 5000})
+        M.toast({ html: e.toString(), displayLength: 5000 })
     }
 });
 
@@ -291,14 +290,14 @@ blurBackgroundOptIn.addEventListener('change', () => {
 });
 
 chooseBackgroundImgOptIn.addEventListener('change', () => {
-    if(chooseBackgroundImgOptIn.checked) {
+    if (chooseBackgroundImgOptIn.checked) {
         selBackgroundImgDivContainer.classList.remove('hide');
         fileBackgroundImgDivContainer.classList.add('hide');
     }
     selBackgroundImg.dispatchEvent(new Event('change'));
 });
 uploadBackgroundImgOptIn.addEventListener('change', () => {
-    if(uploadBackgroundImgOptIn.checked) {
+    if (uploadBackgroundImgOptIn.checked) {
         selBackgroundImgDivContainer.classList.add('hide');
         fileBackgroundImgDivContainer.classList.remove('hide');
     }
@@ -306,7 +305,7 @@ uploadBackgroundImgOptIn.addEventListener('change', () => {
 });
 
 
-async function drawSegmentationResult(segmentationResult, input){
+async function drawSegmentationResult(segmentationResult, input) {
     // get the canvas dimensions
     const canvasWidth = videoCanvas.width;
     const canvasHeight = videoCanvas.height;
@@ -341,7 +340,7 @@ async function drawSegmentationResult(segmentationResult, input){
     videoCanvasCtx.restore();
 
     videoCanvasCtx.save();
-    if(blurBackgroundOptIn.checked) {
+    if (blurBackgroundOptIn.checked) {
         // create blur background
         const blurBackgroundCanvas = document.createElement('canvas');
         blurBackgroundCanvas.width = scaledWidth;
@@ -364,11 +363,11 @@ async function drawSegmentationResult(segmentationResult, input){
     }
     else {
         videoCanvasCtx.globalCompositeOperation = 'source-out'
-        if(backgroundImage != null) {
+        if (backgroundImage != null) {
             // draw the background image on the canvas
             videoCanvasCtx.drawImage(backgroundImage, offsetX, offsetY, scaledWidth, scaledHeight);
         } else {
-            videoCanvasCtx.fillRect(0, 0,scaledWidth, scaledHeight)
+            videoCanvasCtx.fillRect(0, 0, scaledWidth, scaledHeight)
         }
     }
     videoCanvasCtx.restore();
@@ -392,7 +391,7 @@ const blurBackground = (context, blurRadius = 8) => {
     const { height, width } = context.canvas
     const imageData = context.getImageData(0, 0, width, height)
     const videoPixels = imageData.data
-    
+
     for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
             // get the pixel index
