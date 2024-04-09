@@ -1,12 +1,11 @@
 // we start by importing mediapipe tasks vision module
-import vision from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision";
+import { ImageSegmenter, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision";
 
 // we then import the camera class and the utils functions
 import Camera from "./camera.js";
 import { fetchImageAsElement } from "./utils.js";
 import { createPortrait } from "./portrait.js";
 import { createCopyTextureToCanvas } from "./convertMPMaskToImageBitmap.js"
-const { ImageSegmenter, SegmentationMask, FilesetResolver } = vision;
 
 // Here, we get a reference to the DOM elements
 const btnStart = document.getElementById('btnStart');
