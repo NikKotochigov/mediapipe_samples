@@ -88,20 +88,25 @@ async function createImageSegmenter() {
 async function startSegmentationTask() {
     // In Safari, the timing of drawingImage for a VideoElement is severe and often results in an empty image.
     // Therefore, we use createImageBitmap to get the image from the video element at first.
+    const startA = performance.now();
     const input = await createImageBitmap(video);
     /**
      * Dispatches the segmentation task
      */
     let frameId = requestAnimationFrameId || 0;
-    const segmentationMask = await imageSegmenter.segmentForVideo(input, frameId);
 
+    const startS = performance.now();
+    const segmentationMask = await imageSegmenter.segmentForVideo(input, frameId);
+    const finishS = performance.now();
+    console.log('segmentation', finishS - startS);
 
     if (camera.isRunning) {
         // draw the segmentation mask on the canvas
         await drawSegmentationResult(segmentationMask.confidenceMasks, input);
 
         segmentationMask.close();
-
+        const finishA = performance.now();
+        console.log('allProcess', finishA - startA);
         // start the segmentation task loop using requestAnimationFrame
         requestAnimationFrameId = window.requestAnimationFrame(startSegmentationTask);
     }
